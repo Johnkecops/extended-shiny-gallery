@@ -2,6 +2,11 @@ library(shiny)
 library(ggvis)
 library(dplyr)
 
+# ggvis 0.4.x group_by.reactive passes `add =`, defunct since dplyr 1.0; override with `.add`.
+registerS3method("group_by", "reactive", function(.data, ..., .add = FALSE) {
+  reactive(dplyr::group_by(.data(), ..., .add = .add))
+}, envir = asNamespace("dplyr"))
+
 source("ggcircos_helpers.R")
 
 use_donors <- c("DO33200", "DO32887", "DO49184")
@@ -23,7 +28,7 @@ snp_genes <- snp %>%
 # comment this bit out in the platform and use the view instead above
 top_genes <- snp_genes %>%
   group_by(hgnc_symbol, gene_affected, mutated_from_allele, mutated_to_allele, mutation_type, consequence_type, chromosome, chromosome_start, chromosome_end) %>%
-  summarise(count = n())
+  summarise(count = n(), .groups = "drop")
 
 snp_transcripts <- snp_genes[, c("icgc_donor_id", "hgnc_symbol", "transcript_affected", "gene_affected", "chromosome", "chromosome_start", "chromosome_end", "mutated_from_allele", "mutated_to_allele", "consequence_type", "mutation_type")]
 
@@ -63,15 +68,11 @@ radians_m <- create_radians(chroms, lengths)
 
 server <- function(input, output, session) {
   re_values <- reactiveValues(
-    scaling_factors = rep(1, 24), previous_radians = radians_f,
+    scaling_factors = rep(1, 24), previous_radians = radians_m,
     chrom_clicked = "1", chroms_selected = NULL
   )
 
   radians <- reactive({
-    donors_filt <- donors %>% filter(icgc_donor_id == input$donor)
-
-    gender <- unique(donors_filt$donor_sex)
-
     rads <- create_radians(chroms, lengths * re_values$scaling_factors)
     #       if(gender == "female") {
     #
@@ -103,15 +104,13 @@ server <- function(input, output, session) {
       top_genes <- top_genes[, c("hgnc_symbol", "chromosome", "chromosome_start", "mutated_from_allele", "mutated_to_allele", "consequence_type", "count")] %>%
         mutate(count = as.integer(count), chromosome_start = as.integer(chromosome_start)) %>%
         arrange(desc(count)) %>%
-        top_n(n = 10)
+        head(10)
       setNames(top_genes, c("HGNC", "Chr", "Start", "From", "To", "Consequence", "Count"))
     },
     include.rownames = FALSE
   )
 
   seq_df <- reactive({
-    donors_filt <- donors %>% filter(icgc_donor_id == input$donor)
-
     #    gender <- unique(donors_filt$donor_sex)
 
     #     if (gender == "female") {
@@ -143,7 +142,7 @@ server <- function(input, output, session) {
       min_value = 0, max_value = max(snp_data$transcripts) + 1
     )
 
-    points$id <- paste0("snp", 1:nrow(points))
+    points$id <- sprintf("snp%d", seq_len(nrow(points)))
 
     points
   })
@@ -224,16 +223,12 @@ server <- function(input, output, session) {
       r = c(cnv_inner, cnv_outer)
     )
 
-    cnv_plot_data$id <- paste0("cnv", 1:(nrow(cnv_plot_data) / 2))
+    cnv_plot_data$id <- sprintf("cnv%d", seq_len(nrow(cnv_plot_data) / 2))
 
     cnv_plot_data %>% filter(seq %in% re_values$chroms_selected)
   })
 
   cnv_line_data <- reactive({
-    donors_filt <- donors %>% filter(icgc_donor_id == input$donor)
-
-    gender <- unique(donors_filt$donor_sex)
-
     cnv_filt <- cnv_filt() %>%
       group_by(chromosome) %>%
       arrange(pos)
@@ -262,33 +257,31 @@ server <- function(input, output, session) {
 
       row <- tt_data[tt_data$id == data$id, ]
 
-      transcripts <- snp_transcript_data() %>% filter(gene_affected == row$gene_affected)
+      transcripts <- snp_transcript_data() %>% filter(
+        gene_affected == row$gene_affected, chromosome_start == row$chromosome_start,
+        mutated_from_allele == row$mutated_from_allele, mutated_to_allele == row$mutated_to_allele
+      )
 
       gene_name <- genes %>% filter(ensembl_gene_id %in% row$gene_affected)
 
-      clin_data <- clinvar_data() %>% filter(gene_affected %in% row$gene_affected)
+      clin_data <- clinvar_data() %>% filter(
+        gene_affected == row$gene_affected, chromosome_start == row$chromosome_start,
+        mutated_from_allele == row$mutated_from_allele, mutated_to_allele == row$mutated_to_allele
+      )
 
       dbsnp_url <- "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs="
       clinvar_url <- "http://www.ncbi.nlm.nih.gov/clinvar/variation/"
 
-      clin_text <- ""
-
       if (nrow(clin_data) > 0) {
-        for (i in 1:nrow(clin_data)) {
-          clin_text <- paste0(clin_text, clin_data[i, c("hgnc_symbol")], " | ", clin_data[i, c("consequence_type")], " | ", clin_data[i, c("clinical_significance")], " | ", "<a href=", dbsnp_url, clin_data[i, c("dbsnp_rs_no")], ">", clin_data[i, c("dbsnp_rs_no")], "</a>", " | ", "<a href=", clinvar_url, clin_data[i, c("variant_id")], " target=_blank>", clin_data[i, c("variant_id")], "</a><br>")
-        }
+        clin_text <- paste0(clin_data$hgnc_symbol, " | ", clin_data$consequence_type, " | ", clin_data$clinical_significance, " | ", "<a href=", dbsnp_url, clin_data$dbsnp_rs_no, ">", clin_data$dbsnp_rs_no, "</a>", " | ", clin_data$review_status, " | ", "<a href=", clinvar_url, clin_data$variant_id, " target=_blank>", clin_data$variant_id, "</a><br>", collapse = "")
       } else {
         clin_text <- paste0(row$gene_affected, " | chr", row$chromosome, ": No associated ClinVar records found.")
       }
 
-      transcript_text <- ""
-
       ensembl_gene_url <- "http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g="
       ensembl_transcript_url <- "http://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t="
 
-      for (i in 1:nrow(transcripts)) {
-        transcript_text <- paste0(transcript_text, " <a href=", ensembl_transcript_url, transcripts[i, c("transcript_affected")], " target=_blank>", transcripts[i, c("transcript_affected")], "</a>")
-      }
+      transcript_text <- paste0(" <a href=", ensembl_transcript_url, transcripts$transcript_affected, " target=_blank>", transcripts$transcript_affected, "</a>", collapse = "")
 
       record_colour <- paste0("rgb(", sample(170:255, 1), ",", sample(150:255, 1), ",", sample(170:255, 1), ")")
 
@@ -324,7 +317,7 @@ server <- function(input, output, session) {
         row$name_from, ":", row$pos_from, "<br>",
         "&rarr;", "<br>",
         row$name_to, ":", row$pos_to,
-        "<center/>",
+        "</center>",
         "Annotation: ", row$annotation
       )
     }
@@ -336,7 +329,7 @@ server <- function(input, output, session) {
   }
 
   click_handle <- function(data, location, session) {
-    if (is.null(data)) {
+    if (is.null(data) || is.null(data$group)) {
       return(NULL)
     }
 

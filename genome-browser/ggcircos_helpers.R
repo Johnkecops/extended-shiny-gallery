@@ -58,15 +58,21 @@ add_lines.default <- function(vis, seq_df, seq, position, value, outer, inner, .
 add_lines.reactive <- function(vis, seq, position, value, outer, inner, seq_df, ...,
                                data = NULL, max_value = NULL, min_value = NULL) {
   
+  # capture unevaluated args here; substitute()/parent.frame() inside reactive() see shiny's frames
+  seq_expr <- substitute(seq)
+  position_expr <- substitute(position)
+  value_expr <- substitute(value)
+  caller_env <- parent.frame()
+
   df <- shiny::reactive({
-    
+
     if (shiny::is.reactive(data)) {
       data <- data()
     }
-    
-    seq_sub <- eval(substitute(seq, parent_env(environment())), data, parent.frame())
-    position_sub <- eval(substitute(position, parent_env(environment())), data, parent.frame())
-    value_sub <- eval(substitute(value, parent_env(envirnomnet())), data, parent.frame())
+
+    seq_sub <- eval(seq_expr, data, caller_env)
+    position_sub <- eval(position_expr, data, caller_env)
+    value_sub <- eval(value_expr, data, caller_env)
     
     if(is.null(max_value)) max_value <- max(value_sub) 
     if(is.null(min_value)) min_value <- min(value_sub)
@@ -471,8 +477,8 @@ fit_link <- function(name_from, name_to, pos_from, pos_to, start_r, end_r, inner
 
 fit_links <- function(name_from, name_to, pos_from, pos_to, seq_df, start_r, end_r, inner_r = 0.1) {
   
-  link_df <- data.frame(seq_from = factor(name_from, levels = levels(seq_df$seq)),
-                        seq_to = factor(name_to, levels = levels(seq_df$seq)), pos_from, pos_to)
+  link_df <- data.frame(seq_from = factor(name_from, levels = unique(as.character(seq_df$seq))),
+                        seq_to = factor(name_to, levels = unique(as.character(seq_df$seq))), pos_from, pos_to)
   
   link_df %>%
     inner_join(seq_df, by = c("seq_from" = "seq")) %>%
@@ -568,8 +574,8 @@ fit_ribbons <- function(name_from, name_to, pos_from_start, pos_from_end,
                         pos_to_start, pos_to_end, seq_df,
                         start_r, end_r, inner_r = 0.1, metadata = NULL) {
   
-  ribbon_df <- data.frame(name_from = factor(name_from, levels = levels(seq_df$seq)),
-                          name_to = factor(name_to, levels = levels(seq_df$seq)),
+  ribbon_df <- data.frame(name_from = factor(name_from, levels = unique(as.character(seq_df$seq))),
+                          name_to = factor(name_to, levels = unique(as.character(seq_df$seq))),
                           pos_from_start = pos_from_start,
                           pos_from_end = pos_from_end,
                           pos_to_start = pos_to_start,
