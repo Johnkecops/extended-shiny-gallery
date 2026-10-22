@@ -35,6 +35,17 @@ population_data_short <- rbind(
 )
 
 
+#---- CSSE data ----
+# Loaded once per R process and shared by all sessions.
+# Data is not auto-updated: refresh COVID-19/ and covid19Italy/ manually, then restart the app.
+csse_folder <- "./COVID-19/csse_covid_19_data/csse_covid_19_daily_reports"
+all_data_global <- generate_from_daily(csse_folder) %>%
+  rename(value = confirmed) %>%
+  new_data_gen() %>%
+  add_mortality()
+map_data_global <- generate_all_from_daily(csse_folder)
+
+
 
 #---- !! UI !! ----
 # Define UI for application that draws a histogram
@@ -121,43 +132,8 @@ left: 0;
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
   
-  #---- git pull ----
-  git_pull <- reactive({
-    progress <- shiny::Progress$new()
-    on.exit(progress$close())
-    
-    progress$set(message = "Updating CSSE data", value = 0.5)
-    wait_show(session)
-    if (dir.exists("COVID-19")) {
-      setwd("COVID-19")
-      system("git pull")
-      setwd("..")
-    } else {
-      
-      system("git clone https://github.com/CSSEGISandData/COVID-19.git", timeout = 1000)
-    }
-    wait_hide(session)
-  })
-  
-  git_pull_italy <- reactive({
-    progress <- shiny::Progress$new()
-    on.exit(progress$close())
-    progress$set(message = "Updating Italy data", value = 0.5)
-    wait_show(session)
-    if (dir.exists("covid19Italy")) {
-      setwd("covid19Italy")
-      system("git pull")
-      setwd("..")
-    } else {
-      
-      system("git clone https://github.com/RamiKrispin/covid19Italy.git", timeout = 1000)
-    }
-    wait_hide(session)
-  })
   #---- Italy data ----
   italy_data <- reactive({
-    git_pull_italy()
-    wait_show(session)
     list(
       total = read.csv("covid19Italy/csv/italy_total.csv"),
       region = read.csv("covid19Italy/csv/italy_region.csv"),
@@ -187,24 +163,8 @@ server <- function(input, output, session) {
   #   
   # })
   
-  all_data <- reactive({
-    
-    git_pull()
-    wait_show(session)
-    generate_from_daily("./COVID-19/csse_covid_19_data/csse_covid_19_daily_reports") %>%
-      rename(value = confirmed) %>%
-      new_data_gen() %>%
-      add_mortality()
-  })
-  #---- Map data ----
-  
-  map_data <- reactive({
-    git_pull()
-    wait_show(session)
-    map_data <- generate_all_from_daily("./COVID-19/csse_covid_19_data/csse_covid_19_daily_reports")
-    wait_hide(session)
-    return(map_data)
-  })
+  all_data <- reactive(all_data_global)
+  map_data <- reactive(map_data_global)
   
   all_dates <- reactive({
     map_data()$date %>% unique() %>% as.POSIXct(origin = "1970-01-01")
@@ -212,7 +172,6 @@ server <- function(input, output, session) {
   
   #---- last mod ----
   output$last_modified <- renderUI({
-    git_pull()
     div(style = "font-size: 0.5em; text-align:center",
         tags$p("Data last modified:"),
         tags$p(file.info("COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")["mtime"][1,1]),

@@ -33,3 +33,5 @@ Sebastian Engel-Wolf is a Freelance Scientific Software Developer. You can find 
 * LinkedIn: https://www.linkedin.com/in/zappingseb/
 * Homepage: https://www.mail-wolf.de
 * Twitter: twitter.com/zappingseb
+
+AI Assistance Disclaimer: This codebase was developed with the assistance of Claude Code. While the AI provided code generation, debugging, and structural support, the human developer maintains full responsibility for reviewing, testing, and maintaining all content and functionality

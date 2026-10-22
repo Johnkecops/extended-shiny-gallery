@@ -232,8 +232,7 @@ timeline_charts <- function(input, output, session, all_data = all_data, map_dat
         ),
         yaxis = list(
           type = "log",
-          title = "Doubling Days",
-          range = c(0, max(as.numeric(plot_data_intern()$doubling_days), na.rm = T) + 0.5)
+          title = "Doubling Days"
         )
       )
     
@@ -310,7 +309,7 @@ timeline_charts <- function(input, output, session, all_data = all_data, map_dat
         ),
         yaxis = list(
           title = "New cases",
-          range = c(0, max(as.numeric(plot_data_intern()$doubling_days), na.rm = T) + 0.5)
+          range = c(0, max(as.numeric(plot_data_intern()$change), na.rm = T) + 0.5)
         )
       )
     wait_hide(session)

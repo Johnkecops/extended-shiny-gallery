@@ -33,7 +33,7 @@ per_country_daily <- function(daily_data) {
   
   if ("Combined_Key" %in% names(daily_data)) {
     nyc <- daily_data %>%
-      filter(Province.State %in% c("New York City, NY") | Combined_Key == "New York City, New York, US") %>%
+      filter(Province.State %in% c("New York City, NY") | Combined_Key %in% paste0(c("New York City", "Bronx", "Kings", "New York", "Queens", "Richmond"), ", New York, US")) %>%
       mutate(Country.Region = "New York City") %>% select(
         Province.State, Country.Region, Last.Update, Confirmed, Deaths, Recovered
       )
@@ -72,10 +72,16 @@ per_country_daily <- function(daily_data) {
     summarise_all(funs(sum), na.rm = TRUE)
 }
 
+# CSSE daily files are named MM-DD-YYYY.csv, so list.files() order is not date order
+daily_files <- function(folder) {
+  f <- list.files(folder, pattern = ".csv", full.names = T)
+  f[order(as.Date(basename(f), "%m-%d-%Y.csv"))]
+}
+
 generate_from_daily <- function(folder = "COVID-19/csse_covid_19_data/csse_covid_19_daily_reports", column = "Recovered") {
   
   recovered <- do.call(rbind,
-                       lapply(list.files(folder, pattern = ".csv", full.names = T), function(x){
+                       lapply(daily_files(folder), function(x){
                          
                          data_day <- read.csv(x)
                          names(data_day)[grepl("Province", names(data_day))] <- "Province.State"
@@ -123,7 +129,7 @@ generate_from_daily <- function(folder = "COVID-19/csse_covid_19_data/csse_covid
 generate_all_from_daily <- function(folder = "COVID-19/csse_covid_19_data/csse_covid_19_daily_reports") {
   
   recovered <- do.call(rbind,
-                       lapply(list.files(folder, pattern = ".csv", full.names = T), function(x){
+                       lapply(daily_files(folder), function(x){
                          
                          data_day <- read.csv(x)
                          names(data_day)[grepl("Province", names(data_day))] <- "Province.State"
@@ -375,7 +381,7 @@ add_doubling_rates <- function(covid_data_long_grouped) {
 }
 
 breaks_colors <- function(vec, reverse = FALSE) {
-  brks <- quantile(vec, probs = seq(.05, .95, .05), na.rm = TRUE)
+  brks <- quantile(vec[is.finite(vec)], probs = seq(.05, .95, .05), na.rm = TRUE)
   # clrs <- rev(round(seq(255, 40, length.out = length(brks) + 1), 0) %>%
   # {paste0("rgb(255,", ., ",", ., ")")})
   clrs_hex <- colorRampPalette(c("#051923", "#003554", "#2196F3", "#16B0F7"))(length(brks) + 1)

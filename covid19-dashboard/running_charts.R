@@ -186,8 +186,7 @@ running_charts <- function(input, output, session, all_data = all_data, map_data
         ),
         yaxis = list(
           type = "log",
-          title = "Doubling Days",
-          range = c(0, max(as.numeric(running_day_data()$doubling_days), na.rm = T) + 0.5)
+          title = "Doubling Days"
         )
       )
     

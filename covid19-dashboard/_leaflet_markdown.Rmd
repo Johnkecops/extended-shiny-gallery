@@ -75,7 +75,7 @@ renderLeaflet({
     arrange(active)
   
   # Create the map
-  leaflet() %>% addProviderTiles(providers$ CartoDB.Positron) %>%
+  leaflet() %>% addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
     setView(0,0, 2) %>%
     clearGroup(curr_date()) %>%
     addCircles(data = data_for_display, lng = ~Long, lat = ~Lat,

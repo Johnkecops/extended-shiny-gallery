@@ -45,7 +45,7 @@ map <- function(input, output, session, all_dates = NULL, map_data = NULL) {
   
   output$outmap <- renderLeaflet({
     
-    mapout <- leaflet_static <- leaflet() %>% addProviderTiles(providers$ CartoDB.Positron) %>%
+    mapout <- leaflet_static <- leaflet() %>% addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
       setView(0,0, 2)
     
     return(mapout)
@@ -56,7 +56,7 @@ map <- function(input, output, session, all_dates = NULL, map_data = NULL) {
      date_to_choose <- if (is.null(input$datum)) {
        as.character(Sys.Date() - 1)
      } else {
-       as.character(input$datum)
+       as.character(as.Date(input$datum, tz = "UTC"))
      }
      
      only_numeric <- sort(as.numeric(unique(full_data()$active)))

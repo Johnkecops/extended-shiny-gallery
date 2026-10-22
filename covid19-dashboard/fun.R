@@ -53,7 +53,7 @@ fun <- function(input, output, session, fun_data) {
             type = "bar", 
             marker = list(color = colpal[2])) %>%
     layout(title = "Number of rolls per household / year",
-           yaxis = list(title = "Country", tickvals = 1:nrow(fun_data()$toilet_paper), tickmode = "array"),
+           yaxis = list(title = "Country"),
            xaxis = list(title = "Usage of Rolls per Household")
           )
   })
@@ -61,7 +61,6 @@ fun <- function(input, output, session, fun_data) {
     
     fun_data()$pasta %>% 
     dplyr::arrange(per.capita) %>%
-      mutate(per.capita = per.capita/0.55*4) %>%
       mutate(X = factor(X, levels = X)) %>%
     plot_ly(y = ~ X,  
             x = ~ per.capita, 
@@ -69,7 +68,7 @@ fun <- function(input, output, session, fun_data) {
             type = "bar", 
             marker = list(color = colpal[2])) %>%
     layout(title = "Spending on Pasta / Year",
-           yaxis = list(title = "Country", tickvals = 1:nrow(fun_data()$pasta), tickmode = "array"),
+           yaxis = list(title = "Country"),
            xaxis = list(title = "USD")
           )
   })
