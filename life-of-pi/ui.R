@@ -6,17 +6,13 @@ library(waiter)
 library(bsplus)
 library(shinyjs)
 
-bs_theme_new(version = "4+3", bootswatch = "slate")
-
-
-bs_theme_accent_colors(secondary = "#f8f8f8e6")
-bs_theme_add_variables(black = "#88837d")
+## passed to navbarPage so tab markup matches the Bootstrap 4 JS (updateNavbarPage needs .nav-link)
+theme = bs_theme(version = 4, bootswatch = "slate", secondary = "#f8f8f8e6", black = "#88837d")
 
 
 ui = tagList(
   
   ## functions required to be used in the ui
-  bootstrap(),
   use_waiter(include_js = FALSE),
   use_bs_popover(),
   useShinyjs(),
@@ -65,6 +61,7 @@ ui = tagList(
   ## the actual page starts here!
   navbarPage(
     id = "navbar",
+    theme = theme,
     windowTitle = "Shiny app: Life of Pi",
     
     ## title
