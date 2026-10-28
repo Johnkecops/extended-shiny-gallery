@@ -5,7 +5,7 @@ library(gifski)
 
 ## values for slider input
 pre_rendered = c(1 %o% 10^(2:4), 10002)
-slider_vals = sort(c(pre_rendered, sample(100:10000, 5)))
+slider_vals = sort(unique(c(pre_rendered, sample(100:10000, 5))))
 
 the_data = function(n) {
   x0 = 0  # origin
@@ -19,7 +19,7 @@ the_data = function(n) {
   point = ifelse(distances < 1, "Inside", "Outside")
   id = 1:n
   p = round(cumsum(point == "Inside")/id, 3)
-  pi_hat = round(p * 4, 3)
+  pi_hat = round(4 * cumsum(point == "Inside")/id, 3)  # from unrounded p
   data = data.frame(id, x, y, distances, point, p, pi_hat)
   return(data)
 }

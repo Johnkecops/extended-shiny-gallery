@@ -59,7 +59,7 @@ ui = tagList(
                      .irs-max {background:#E7553C; color: #f8f8f8}
                      .irs-min {background:#f8f8f8}
                      .irs-grid-pol {background: #272b30}
-                     #go_to_work{color:#e9ecef; height: 45px; background-color:#447099"))
+                     #go_to_work{color:#e9ecef; height: 45px; background-color:#447099}"))
   ),
   
   ## the actual page starts here!
@@ -127,7 +127,7 @@ ui = tagList(
           div(p("\\(P(a \\ point \\ falling \\ inside \\ the \\ circle) = \\pi/4\\)"), align = "center"),
           div(p("\\(p = \\pi/4 \\implies \\pi = 4 p\\)"), align = "center"),
           p("We shall estimate \\(\\pi\\) using this equation. If you are interested to know more, you should find some good stuff ",
-            tags$a("here.", href = 'http://www.science.smith.edu/dftwiki/images/b/b9/MonteCarloBookChapter.pdf', target = '_blank'),
+            tags$a("here.", href = 'http://www.science.smith.edu/dftwiki/images/b/b9/MonteCarloBookChapter.pdf', target = '_blank', rel = 'noopener noreferrer'),
             "And no, there are no tigers there!"),
           br(),
           div(actionButton("go_to_work", "Enough chit-chat, let's get to work!", status = "success"), align = "center")
@@ -152,7 +152,7 @@ ui = tagList(
               shiny_iconlink() %>%
                 bs_embed_popover(
                   title = "range: (100-10002)",
-                  content = "Values that are multiples of 100 load quite fast. Special value: 10001.
+                  content = "Values 100, 1000 and 10000 load quite fast. Special value: 10002.
                   Other values will take some time to render and the animation won't be quite as smooth.",
                   placement = "right"
                 )

@@ -25,3 +25,6 @@ Then we let some points fall freely on the canvass.
 The points are independent and may fall at any place within the square.
 We then take a note of the poportion (p) of points that have fallen inside the circle to the total number of points.
 This proportion gives 1/4 th of π. We then multiply the result with 4 to get an estimate of π.
+---
+
+AI Assistance Disclaimer: This codebase was developed with the assistance of Claude Code. While the AI provided code generation, debugging, and structural support, the human developer maintains full responsibility for reviewing, testing, and maintaining all content and functionality
