@@ -35,11 +35,7 @@ Run the checks from the app directory:
 Rscript tests/test_app.R
 ```
 
-## Changes from the Python version
 
-- `ipyleaflet` replaced by `leaflet`, `plotly.express` by `plotly`, pandas by base R, `geopandas`-derived `countries.csv` by reading `countries.geojson` with `sf`.
-- Circle markers draw above country polygons so their popups stay clickable.
-- Circle radius is continuous across bins; the choropleth colour scale spans the full death-rate range; the year slider maximum follows the selected dataset (World Bank to 2017, OECD to 2019).
 
 ## AI Assistance Disclaimer
 
