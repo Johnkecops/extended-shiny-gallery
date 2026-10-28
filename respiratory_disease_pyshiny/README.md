@@ -1,40 +1,45 @@
 Note: The original version of this application is at https://github.com/Appsilon/respiratory_disease_pyshiny
 
-# Respiratory Disease: Shiny for Python Version
+# Respiratory Disease: R/Shiny Version
 
-This repository contains the result of a Py/Shiny (Shiny for Python) app-sprint during a hackathon. The goal of this sprint was to "translate" an R/Shiny application into a "Shiny for Python" version, as well as to explore some Py/Shiny-specific features. You can explore the original app as a [demo](https://connect.appsilon.com/respiratory_disease_app_sprint/). To see the original R/Shiny app code, please reach out to us.
+This is an R/Shiny port of Appsilon's Shiny for Python app-sprint project. The Python version translated an R/Shiny app into Shiny for Python; this version brings it back to R with the same layout, data, styling and PWA assets. You can explore Appsilon's original app as a [demo](https://connect.appsilon.com/respiratory_disease_app_sprint/).
 
-Note: this app was built in August 2022 with the early Alpha version of Shiny for Python. Some solutions implemented here may be resolved in future Shiny for Python versions. Please review the [official documenation](https://shiny.rstudio.com/py/docs/get-started.html) for current information.
+The app compares PM2.5 air pollution with death rates from respiratory disease (deaths per 100,000), using World Bank or OECD PM2.5 data and Our World in Data death rates.
 
-## Explore the app
-The "normal" app is deployed at [Appsilon RSConnect](https://connect.appsilon.com/respiratory_disease_pyshiny/). The WASM version aka Shinylive is deployed at https://connect.appsilon.com/respiratory_disease_shinylive/. Please note, that for a ShinyLive application a large bundle has to be downloaded which can take some time (but it will be cached and used later - even without an internet connection).
+## Structure
 
-To run the app locally, clone the repo, create a virtual environment, install the dependencies, and run the app and navigate to `localhost:8000` in the browser:
-
-```shell
-git clone git@github.com:Appsilon/respiratory_disease_pyshiny.git
-cd ./respiratory_disease_pyshiny
-python -m virtualenv venv
-source ./venv/bin/activate
-pip install -r requirements.txt
-shiny run --port 8000 app.py
+```
+app.R            UI shell, navbar, PWA script, top-level server
+R/data.R         loads CSVs and data/countries.geojson
+R/helper_text.R  sidebar text and info modal
+R/mod_map.R      leaflet map module (circles = PM2.5 and death rate, polygons = death rate)
+R/mod_plot.R     plotly line charts module
+www/             CSS, tab-switch JS, PWA manifest and service worker
+tests/test_app.R regression checks (data, scaling, server logic)
 ```
 
-## Key Results
-A [summary of the Py/Shiny app sprint](https://appsilon.com/pyshiny-demo/) can be found on our blog. You can also find a [summary of the original R/Shiny app sprint](https://appsilon.com/appsprints-r-shiny-app-development/).
+Shiny sources every file in `R/` before `app.R`.
 
-- Most of the original structure/logic has been preserved, unless a direct translation was impossible
-- Some UI changes have been introduced
-  - Grid layout
-  - Mobile responsiveness
-  - Workaround for dataset switch
-- A working Shinylive version of the app was created
+## Run locally
 
-## Challenges
-- Lack of any UI-component libraries
-- `ipyleaflet` lacks features of its R counterpart, and documentation is not helpful
-- Issues with CPU throttling
-- Shinylive version is very sensitive to the packages in requirements.txt. Problems with packages like `geopandas`.
+Requires R >= 4.1 (native pipe). Tested with R 4.5.2, shiny 1.14.0, bslib 0.10.0, leaflet 2.2.3, plotly 4.12.1, sf 1.1.3.
+
+```r
+install.packages(c("shiny", "bslib", "leaflet", "plotly", "sf", "RColorBrewer"))
+shiny::runApp("respiratory_disease_pyshiny", port = 8000)
+```
+
+Run the checks from the app directory:
+
+```shell
+Rscript tests/test_app.R
+```
+
+## Changes from the Python version
+
+- `ipyleaflet` replaced by `leaflet`, `plotly.express` by `plotly`, pandas by base R, `geopandas`-derived `countries.csv` by reading `countries.geojson` with `sf`.
+- Circle markers draw above country polygons so their popups stay clickable.
+- Circle radius is continuous across bins; the choropleth colour scale spans the full death-rate range; the year slider maximum follows the selected dataset (World Bank to 2017, OECD to 2019).
 
 ## AI Assistance Disclaimer
 
