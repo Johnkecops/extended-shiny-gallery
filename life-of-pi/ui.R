@@ -17,34 +17,7 @@ ui = tagList(
   use_bs_popover(),
   useShinyjs(),
   withMathJax(),
-  
-  tags$footer(
-    
-    fluidRow(
-      column(
-        width = 4
-      ),
-      
-      column(
-        width = 8,
-        tagList(
-          tags$img(src = "RStudio-Logo-White.png", width = "80px", height = "30px"),
-          tags$img(src = "pipe.png", width = "60px", height = "67px"),
-          tags$img(src = "shiny.png", width = "60px", height = "67px"),
-          tags$img(src = "tidyverse.png", width = "60px", height = "67px"),
-          tags$img(src = "gganimate.png", width = "60px", height = "67px"),
-          tags$img(src = "waiter.png", width = "60px", height = "67px"),
-          tags$img(src = "ggforce.png", width = "60px", height = "67px"),
-          tags$img(src = "glue.png", width = "60px", height = "67px")
-        )
-      )
-    ),
-    style = "position:absolute; bottom:0; width:95%;
-    height:77px; /* Height of the footer */
-    color: white; padding: 10px;
-    background-color: #272b30; z-index: 1000;"
-  ),
-  
+
   ## color of the action button, height of the input n box
   tags$head(
     tags$style(HTML("#run{color:#272727; height: 47px}
@@ -182,6 +155,34 @@ ui = tagList(
         )
       )
     )
+  ),
+
+  ## footer sits in normal flow after the page, so it never covers the sidebar text
+  tags$footer(
+
+    fluidRow(
+      column(
+        width = 4
+      ),
+
+      column(
+        width = 8,
+        tagList(
+          tags$img(src = "RStudio-Logo-White.png", width = "80px", height = "30px"),
+          tags$img(src = "pipe.png", width = "60px", height = "67px"),
+          tags$img(src = "shiny.png", width = "60px", height = "67px"),
+          tags$img(src = "tidyverse.png", width = "60px", height = "67px"),
+          tags$img(src = "gganimate.png", width = "60px", height = "67px"),
+          tags$img(src = "waiter.png", width = "60px", height = "67px"),
+          tags$img(src = "ggforce.png", width = "60px", height = "67px"),
+          tags$img(src = "glue.png", width = "60px", height = "67px")
+        )
+      )
+    ),
+    style = "width:95%;
+    height:77px; /* Height of the footer */
+    color: white; padding: 10px;
+    background-color: #272b30;"
   ),
   waiter_show_on_load(html = spin_loaders(42, color = "#aaa"), color = "#272b30", logo = "logo.png")
 )
