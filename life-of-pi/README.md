@@ -25,6 +25,51 @@ Then we let some points fall freely on the canvass.
 The points are independent and may fall at any place within the square.
 We then take a note of the poportion (p) of points that have fallen inside the circle to the total number of points.
 This proportion gives 1/4 th of π. We then multiply the result with 4 to get an estimate of π.
+
+## Running the app
+
+Requires R (tested with 4.5) and these CRAN packages:
+
+```r
+install.packages(c(
+  "shiny", "bslib", "waiter", "bsplus", "shinyjs", "shinyWidgets",
+  "ggplot2", "gganimate", "ggforce", "glue", "gifski", "hrbrthemes"
+))
+```
+
+Tested versions: shiny 1.14.0, bslib 0.10.0, waiter 0.2.5.1, bsplus 0.1.5, shinyjs 2.1.1,
+shinyWidgets 0.9.1, gganimate 1.0.11, ggforce 0.5.0, gifski 1.32.0.2, hrbrthemes 0.9.3.
+
+Start it from the folder that holds `global.R`, `ui.R` and `server.R`:
+
+```r
+shiny::runApp("path/to/life-of-pi")
+```
+
+or from a terminal:
+
+```bash
+Rscript -e 'shiny::runApp("life-of-pi", port = 8765, launch.browser = TRUE)'
+```
+
+In RStudio you can also open `ui.R` or `server.R` and click **Run App**.
+
+Using it:
+
+1. On the **Home** tab, click **Enough chit-chat, let's get to work!** to open the **Work** tab.
+2. Pick the number of points on the slider and click **Let's run!**.
+3. The left animation shows points falling inside or outside the circle; the right one shows the running estimate of π against the true value (dashed line).
+
+100, 1000, 10000 and 10002 load from pre-rendered GIFs in `anims2/` and appear within a second or two.
+Any other value is rendered live with gganimate, which takes noticeably longer. The **Let's run!** button
+stays disabled while the animation renders and plays (about 10 seconds after it appears).
+
+Check the simulation function:
+
+```bash
+Rscript tests/test_the_data.R   # prints "ok"
+```
+
 ---
 
 AI Assistance Disclaimer: This codebase was developed with the assistance of Claude Code. While the AI provided code generation, debugging, and structural support, the human developer maintains full responsibility for reviewing, testing, and maintaining all content and functionality
