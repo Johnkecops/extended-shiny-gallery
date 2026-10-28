@@ -12,7 +12,9 @@ from utils.helper_text import (
 from utils.plot_utils import create_figure
 from data import plot_data_oecd, plot_data_world_bank
 
-country_choices = plot_data_oecd["Entity"].unique().tolist() + ["World"]
+country_choices = sorted(
+    set(plot_data_oecd["Entity"]) | set(plot_data_world_bank["Entity"])
+)
 
 
 @module.ui
@@ -61,6 +63,10 @@ def plot_server(input, output, session, is_wb_data):
         if is_wb_data():
             return plot_data_world_bank
         return plot_data_oecd
+
+    @reactive.Effect
+    def _():
+        ui.update_slider("years_value", max=int(data()["Year"].max()))
 
     @reactive.Calc
     def fig_one():

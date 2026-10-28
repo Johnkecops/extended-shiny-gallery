@@ -1,10 +1,11 @@
+import json as jsonlib
 import geopandas
 import pandas as pd
 
 gdf = geopandas.read_file("data/countries.geojson")
 
 # important not to use `to_dict()` methid
-json = eval(gdf.set_index("id").to_json())
+json = jsonlib.loads(gdf.set_index("id").to_json())
 
 ids = list(map(lambda feature: feature["id"], json["features"]))
 types = list(

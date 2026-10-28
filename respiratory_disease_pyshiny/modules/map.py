@@ -16,6 +16,10 @@ from utils.map_utils import add_circles, add_polygons, filter_data
 from data import polygon_data, map_data_oecd, map_data_world_bank
 
 basemap = cast(dict, basemaps)
+# shared colour scale across years and datasets
+death_rate_max = max(
+    map_data_world_bank["Death.Rate"].max(), map_data_oecd["Death.Rate"].max()
+)
 
 
 @module.ui
@@ -75,10 +79,18 @@ def map_server(input, output, session, is_wb_data):
     map.add_layer(choropleth_layer)
 
     @reactive.Calc
-    def point_data() -> DataFrame:
+    def data() -> DataFrame:
         if is_wb_data():
-            return filter_data(map_data_world_bank, input.years_value())
-        return filter_data(map_data_oecd, input.years_value())
+            return map_data_world_bank
+        return map_data_oecd
+
+    @reactive.Calc
+    def point_data() -> DataFrame:
+        return filter_data(data(), input.years_value())
+
+    @reactive.Effect
+    def _() -> None:
+        ui.update_slider("years_value", max=int(data()["Year"].max()))
 
     @reactive.Effect
     def _() -> None:
@@ -86,4 +98,6 @@ def map_server(input, output, session, is_wb_data):
 
     @reactive.Effect()
     def _() -> None:
-        add_polygons(polygon_data, point_data(), choropleth_layer)
+        add_polygons(
+            polygon_data, point_data(), choropleth_layer, death_rate_max
+        )

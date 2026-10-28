@@ -19,10 +19,10 @@ page_dependencies = ui.tags.head(
 
             while (statusCode === 404 && --retries > 0) {
                 response = await fetch("pwa/manifest.json");
-                statusCode = response.statusCode;
+                statusCode = response.status;
             }
 
-            if (response.statusCode === 404) throw new Error('max retries reached');
+            if (response.status === 404) throw new Error('max retries reached');
 
             $('head').append('<link rel="manifest" href="pwa/manifest.json"/>');
 
@@ -32,8 +32,9 @@ page_dependencies = ui.tags.head(
 
         if('serviceWorker' in navigator) {
           navigator.serviceWorker
-            .register('/respiratory_disease_pyshiny/pwa-service-worker.js', { scope: '/respiratory_disease_pyshiny/' })
-            .then(function() { console.log('Service Worker Registered'); });
+            .register('pwa-service-worker.js')
+            .then(function() { console.log('Service Worker Registered'); })
+            .catch(function(err) { console.warn('Service Worker registration failed', err); });
         }
     """),
     ui.tags.link(rel="apple-touch-icon", href="pwa/icon.png"),

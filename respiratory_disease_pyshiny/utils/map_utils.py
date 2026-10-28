@@ -8,17 +8,19 @@ from ipyleaflet import CircleMarker, LayerGroup, Choropleth
 def determine_circle_radius(num: float) -> int:
     """Circles are scaled differently in ipyleaflet compared to R/Leaflet,
     hence different coefficients.
+    Piecewise-linear with the original per-bin coefficients as slopes, so the
+    radius never shrinks when a value crosses a bin edge.
     """
-    num = int(num)
+    upper_bounds = [10, 20, 25, float("inf")]
+    coefficients = [1.1, 0.8, 0.75, 0.2]
 
-    bins = [range(10), range(10, 20), range(20, 25)]
-    coefficients = [1.1, 0.8, 0.75]
-    final_coef = 0.2
-
-    for bin, coef in zip(bins, coefficients):
-        if num in bin:
-            return int(num * coef)
-    return int(num * final_coef)
+    radius, lower = 0.0, 0
+    for upper, coef in zip(upper_bounds, coefficients):
+        radius += (min(num, upper) - lower) * coef
+        if num <= upper:
+            break
+        lower = upper
+    return int(radius)
 
 
 def determine_circle_color(num: float) -> str:
@@ -79,6 +81,7 @@ def add_polygons(
     polygon_data: DataFrame,
     points_data: DataFrame,
     polygons_layer: LayerGroup,
+    value_max: float,
 ) -> None:
     polygons_layer.clear_layers()
     combined_data = merge(
@@ -91,7 +94,7 @@ def add_polygons(
         choro_data=choro_data,
         colormap=linear.GnBu_09,  # pyright: ignore
         value_min=0,
-        value_max=70,
+        value_max=value_max,
         style={
             "weight": 2,
             "opacity": 1,

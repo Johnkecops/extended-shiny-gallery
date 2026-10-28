@@ -35,3 +35,7 @@ A [summary of the Py/Shiny app sprint](https://appsilon.com/pyshiny-demo/) can b
 - `ipyleaflet` lacks features of its R counterpart, and documentation is not helpful
 - Issues with CPU throttling
 - Shinylive version is very sensitive to the packages in requirements.txt. Problems with packages like `geopandas`.
+
+## AI Assistance Disclaimer
+
+AI Assistance Disclaimer: This codebase was developed with the assistance of Claude Code. While the AI provided code generation, debugging, and structural support, the human developer maintains full responsibility for reviewing, testing, and maintaining all content and functionality
