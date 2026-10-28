@@ -48,8 +48,9 @@ map_ui <- function(id) {
 map_server <- function(id, is_wb_data) {
   moduleServer(id, function(input, output, session) {
     output$map <- renderLeaflet({
-      leaflet(options = leafletOptions(minZoom = 3, maxZoom = 18, worldCopyJump = FALSE)) |>
-        addProviderTiles(providers$CartoDB.Positron, options = providerTileOptions(noWrap = TRUE)) |>
+      leaflet(options = leafletOptions(minZoom = 3, maxZoom = 16, worldCopyJump = FALSE)) |>
+        # CARTO basemaps now need an API key; Esri gray canvas is keyless (max zoom 16)
+        addProviderTiles(providers$Esri.WorldGrayCanvas, options = providerTileOptions(noWrap = TRUE)) |>
         setView(lng = 10, lat = 50, zoom = 5) |>
         addMapPane("choropleth", zIndex = 410) |>
         addMapPane("circles", zIndex = 420)

@@ -26,6 +26,8 @@ for (wb in c(TRUE, FALSE)) {
   testServer(map_server, args = list(is_wb_data = reactive(wb)), {
     session$setInputs(years_value = 2015)
     stopifnot(nrow(point_data()) > 0, max(data()$Year) == if (wb) 2017 else 2019)
+    # basemap must be keyless (CARTO now returns "API KEY REQUIRED" tiles)
+    stopifnot(grepl("Esri.WorldGrayCanvas", output$map, fixed = TRUE), !grepl("CartoDB", output$map))
   })
   testServer(plot_server, args = list(is_wb_data = reactive(wb)), {
     session$setInputs(years_value = c(2010, 2015), country_select = c("World", "China"))
