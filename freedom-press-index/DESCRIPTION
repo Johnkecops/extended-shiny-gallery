@@ -12,7 +12,7 @@ Imports:
     shiny,
     golem,
     dplyr,
-    typed,
+    typedjs,
     tidyr,
     fullPage,
     magrittr,
