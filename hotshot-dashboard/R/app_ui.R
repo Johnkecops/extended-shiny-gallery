@@ -7,30 +7,6 @@
 #' @import bs4Dash
 #' @noRd
 app_ui <- function(request) {
-  # create tribble for box global config
-  box_config <- tibble::tribble(
-    ~background, ~labelStatus,
-    "danger", "warning",
-    "purple", "success",
-    "success", "primary",
-    "warning", "danger",
-    "fuchsia", "info"
-  )
-  
-  # box factory function
-  box_factory <- function(background, labelStatus) {
-    box(
-      title = "Cyberpunk Box",
-      collapsible = TRUE,
-      background = background,
-      height = "200px",
-      label = boxLabel(1, labelStatus)
-    )
-  }
-  
-  # pmap magic
-  boxes <- purrr::pmap(box_config, box_factory)
-  
   my_theme <- hotshot_theme()
   
   tagList(
@@ -61,7 +37,6 @@ app_ui <- function(request) {
         )
       ),
       body = dashboardBody(
-        #boxes
         tabItems(
           tabItem(
             tabName = "tab1",

@@ -11,3 +11,7 @@
 
 A completely over-the-top dashboard summarizing the Wimpy's World Hotshot Racing 2021 spring virtual racing league. This dashboard contains interactive tables powered by [`{reactable}`](https://glin.github.io/reactable) and interactive visualizations from [`{echarts4r}`](https://echarts4r.john-coene.com) and [`{plotly}`](https://plotly-r.com)! For more details on the application development and features, visit the [RStudio Community Post](https://community.rstudio.com/t/the-hotshots-racing-dashboard-shiny-contest-submission/104925).
 
+---
+
+AI Assistance Disclaimer: This codebase was developed with the assistance of Claude Code. While the AI provided code generation, debugging, and structural support, the human developer maintains full responsibility for reviewing, testing, and maintaining all content and functionality
+
